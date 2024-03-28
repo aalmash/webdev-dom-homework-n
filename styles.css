@@ -136,6 +136,11 @@ body {
     opacity: 0.9;
   }
 
+  .add-form-button:disabled {
+    cursor: default;
+    background-color: gray;
+  }
+
   .error {
-    background-color: red;
+    background-color: lightcoral;
   }
