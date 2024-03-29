@@ -10,7 +10,27 @@ textInputElement.addEventListener('keyup', function (e) {
   }
 });
 
-buttonElement.addEventListener(('click'), () => {
+
+
+nameInputElement.addEventListener('input', () => {
+  if (nameInputElement.value === "") {
+    return buttonElement.disabled = true;
+  } else {
+    return buttonElement.disabled = false;
+   }
+});
+
+textInputElement.addEventListener('input', () => {
+  if (textInputElement.value === "") {
+    return buttonElement.disabled = true;
+  } else {
+    return buttonElement.disabled = false;
+   }
+});
+
+
+
+buttonElement.addEventListener('click', () => {
 
   const oldListElement = listElement.innerHTML;
 
@@ -35,15 +55,15 @@ buttonElement.addEventListener(('click'), () => {
   nameInputElement.classList.remove("error");
   if (nameInputElement.value === "") {
     nameInputElement.classList.add("error");
-    buttonElement.disabled = true;
+    //buttonElement.disabled = true;
     return;
   }
   textInputElement.classList.remove("error");
   if (textInputElement.value === "") {
     textInputElement.classList.add("error");
-    buttonElement.disabled = true;
+    //buttonElement.disabled = true;
     return;
-  }
+  } 
 
   listElement.innerHTML = oldListElement + `<li class="comment">
     <div class="comment-header">
