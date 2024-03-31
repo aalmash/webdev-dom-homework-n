@@ -2,6 +2,7 @@ const buttonElement = document.getElementById("add-button");
 const listElement = document.getElementById("list");
 const nameInputElement = document.getElementById("name-input");
 const textInputElement = document.getElementById("text-input");
+const inputs = document.querySelectorAll(".add-form-input");
 //const deleteButtonElement = document.getElementById("delete-button");
 
 textInputElement.addEventListener('keyup', function (e) {
@@ -10,24 +11,19 @@ textInputElement.addEventListener('keyup', function (e) {
   }
 });
 
+const handleChange = () => {
+	for	(const input of inputs) {
+  	if (input.value === "") {
+    	buttonElement.setAttribute('disabled', '');
+    	return;
+    }
+  }
+  buttonElement.removeAttribute('disabled');
+};
 
-
-nameInputElement.addEventListener('input', () => {
-  if (nameInputElement.value === "") {
-    return buttonElement.disabled = true;
-  } else {
-    return buttonElement.disabled = false;
-   }
-});
-
-textInputElement.addEventListener('input', () => {
-  if (textInputElement.value === "") {
-    return buttonElement.disabled = true;
-  } else {
-    return buttonElement.disabled = false;
-   }
-});
-
+for (const input of inputs) {
+	input.onkeydown = input.onkeyup = input.onkeypress = input.change = handleChange;
+};
 
 
 buttonElement.addEventListener('click', () => {
