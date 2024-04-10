@@ -3,7 +3,7 @@ const listElement = document.getElementById("list");
 const nameInputElement = document.getElementById("name-input");
 const textInputElement = document.getElementById("text-input");
 const inputs = document.querySelectorAll(".add-form-input");
-//const deleteButtonElement = document.getElementById("delete-button");
+
 
 const comments = [
   {
@@ -22,22 +22,9 @@ const comments = [
   }
 ];
 
-initMyLikesListeners = () => {
-  const likeButton = document.querySelectorAll(".like-button");
-
-  for (const like of likeButton) {
-    like.addEventListener("click", () => {
-      const index = comments[like.dataset.index];
-      index.isLiked ? --index.likeCounter : ++index.likeCounter;
-      index.isLiked = !index.isLiked;
-      renderComments();
-    })
-  }
-}
-
 const renderComments = () => {
   const commentsHtml = comments.map((comment, index) => {
-    return `<li class="comment">
+    return `<li class="comment" data-reply ="${comment.name}, ${comment.commentText}">
     <div class="comment-header">
       <div>${comment.name}</div>
       <div>${comment.date}</div>
@@ -54,35 +41,42 @@ const renderComments = () => {
       </div>
     </div>
   </li>`
-  }).join('');
+  }).join('')
+  .replace("<p class='quote'>", "")
+  .replace("</p>", "");
 
   listElement.innerHTML = commentsHtml;
 
-initMyLikesListeners();
+  initMyLikesListeners();
+  reptyToCommentElements();
+};
+
+const reptyToCommentElements = () => {
+  const reptyToCommentElement = document.querySelectorAll(".comment");
+
+  for (const replyToComment of reptyToCommentElement) {
+    replyToComment.addEventListener("click", () => {
+      const reply = replyToComment.dataset.reply;
+      textInputElement.value += `QUOTE_BEGIN ${reply} QUOTE_END \n`
+    });
+  };
+};
+
+initMyLikesListeners = () => {
+  const likeButton = document.querySelectorAll(".like-button");
+
+  for (const like of likeButton) {
+    like.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const index = comments[like.dataset.index];
+      index.isLiked ? --index.likeCounter : ++index.likeCounter;
+      index.isLiked = !index.isLiked;
+      renderComments();
+    })
+  }
 };
 
 renderComments();
-
-textInputElement.addEventListener('keyup', function (e) {
-  if (e.key === 'Enter') {
-    buttonElement.click();
-  }
-});
-
-const handleChange = () => {
-	for	(const input of inputs) {
-  	if (input.value === "") {
-    	buttonElement.setAttribute('disabled', '');
-    	return;
-    }
-  }
-  buttonElement.removeAttribute('disabled');
-};
-
-for (const input of inputs) {
-	input.onkeydown = input.onkeyup = input.onkeypress = input.change = handleChange;
-};
-
 
 buttonElement.addEventListener('click', () => {
 
@@ -114,12 +108,20 @@ buttonElement.addEventListener('click', () => {
     textInputElement.classList.add("error");
     //buttonElement.disabled = true;
     return;
-  } 
+  }
 
   comments.push({
-    name: nameInputElement.value,
+    name: nameInputElement.value
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
+      .replaceAll("QUOTE_END", "</p>"),
     date: `${date}.${month}.${year} ${hour}:${minute}`,
-    commentText: textInputElement.value,
+    commentText: textInputElement.value
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
+      .replaceAll("QUOTE_END", "</p>"),
     likeCounter: 0,
     isLiked: false,
   })
@@ -128,7 +130,34 @@ buttonElement.addEventListener('click', () => {
 
   nameInputElement.value = "";
   textInputElement.value = "";
-})
+});
+
+textInputElement.addEventListener('keyup', function (e) {
+  if (e.key === 'Enter') {
+    buttonElement.click();
+  }
+});
+
+const handleChange = () => {
+  for (const input of inputs) {
+    if (input.value === "") {
+      buttonElement.setAttribute('disabled', '');
+      return;
+    }
+  }
+  buttonElement.removeAttribute('disabled');
+};
+
+for (const input of inputs) {
+  input.onkeydown = input.onkeyup = input.onkeypress = input.change = handleChange;
+};
 
 
-//deleteButtonElement.addEventListener(('click'), () => {})
+
+// deleteButtonElement.addEventListener(('click'), () => {
+//   const deleteButtonElement = document.getElementById("delete-button");
+//   deleteButtonElement.addEventListener("click", () => {
+
+//   })
+// })
+

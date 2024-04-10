@@ -144,3 +144,10 @@ body {
   .error {
     background-color: lightcoral;
   }
+
+  .quote {
+    box-sizing: border-box;
+    background-color: white;
+    color: black;
+    font-size: 18px;
+  }
