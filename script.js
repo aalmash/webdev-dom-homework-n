@@ -2,7 +2,8 @@ const buttonElement = document.getElementById("add-button");
 const listElement = document.getElementById("list");
 const nameInputElement = document.getElementById("name-input");
 const textInputElement = document.getElementById("text-input");
-const inputs = document.querySelectorAll(".add-form-input");
+const deleteButtonElement = document.getElementById("delete-button");
+
 
 
 const comments = [
@@ -12,13 +13,15 @@ const comments = [
     commentText: "Это будет первый комментарий на этой странице",
     likeCounter: "3",
     isLiked: false,
+    //isEdit: false,
   },
   {
     name: "Варвара Н.",
     date: "13.02.22 19:22",
     commentText: "Мне нравится как оформлена эта страница! ❤",
     likeCounter: "75",
-    isLiked: true
+    isLiked: true,
+    //isEdit: false,
   }
 ];
 
@@ -40,15 +43,21 @@ const renderComments = () => {
         <button data-index="${index}" class="${comment.isLiked ? 'like-button -active-like' : 'like-button'}"></button>
       </div>
     </div>
+    <!-- <div class="add-form-row">
+      <button data-index="${index}" class="edit-button" >Редактировать</button>
+    </div> -->
   </li>`
   }).join('')
-  .replace("<p class='quote'>", "")
-  .replace("</p>", "");
+    .replace("<p class='quote'>", "")
+    .replace("</p>", "");
 
   listElement.innerHTML = commentsHtml;
 
   initMyLikesListeners();
   reptyToCommentElements();
+  handleChanges();
+  //deleteButtonElement();
+  //editCommentElements();
 };
 
 const reptyToCommentElements = () => {
@@ -76,9 +85,44 @@ initMyLikesListeners = () => {
   }
 };
 
+deleteButtonElement.addEventListener("click", () => {
+  comments.pop();
+  renderComments();
+});
+
+const handleChanges = () => {
+  const inputs = document.querySelectorAll(".add-form-input");
+
+  const handleChange = () => {
+    for (const input of inputs) {
+      if (input.value === "") {
+        buttonElement.setAttribute('disabled', '');
+        return;
+      }
+    }
+    buttonElement.removeAttribute('disabled');
+  };
+  
+  for (const input of inputs) {
+    input.onkeydown = input.onkeyup = input.onkeypress = input.change = handleChange;
+  };
+};
+
+// const editCommentElements = () => {
+
+//   for (const editComment of document.querySelectorAll(".edit-button")) {
+//     editComment.addEventListener("click", (e) => {
+//       e.stopPropagation();
+//       const index = comments[editComment.dataset.index];
+//       console.log(index);
+//       renderComments()
+//     })
+//   }
+// }
+
 renderComments();
 
-buttonElement.addEventListener('click', () => {
+buttonElement.addEventListener('click', (timeOfComment) => {
 
   const plus0 = (el) => {
     if (el < 10) {
@@ -94,9 +138,7 @@ buttonElement.addEventListener('click', () => {
   let year = plus0(currentDate.getFullYear());
   let hour = plus0(currentDate.getHours());
   let minute = plus0(currentDate.getMinutes());
-
-
-
+ 
   nameInputElement.classList.remove("error");
   if (nameInputElement.value === "") {
     nameInputElement.classList.add("error");
@@ -137,27 +179,3 @@ textInputElement.addEventListener('keyup', function (e) {
     buttonElement.click();
   }
 });
-
-const handleChange = () => {
-  for (const input of inputs) {
-    if (input.value === "") {
-      buttonElement.setAttribute('disabled', '');
-      return;
-    }
-  }
-  buttonElement.removeAttribute('disabled');
-};
-
-for (const input of inputs) {
-  input.onkeydown = input.onkeyup = input.onkeypress = input.change = handleChange;
-};
-
-
-
-// deleteButtonElement.addEventListener(('click'), () => {
-//   const deleteButtonElement = document.getElementById("delete-button");
-//   deleteButtonElement.addEventListener("click", () => {
-
-//   })
-// })
-
