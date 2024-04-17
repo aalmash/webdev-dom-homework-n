@@ -3,27 +3,48 @@ const listElement = document.getElementById("list");
 const nameInputElement = document.getElementById("name-input");
 const textInputElement = document.getElementById("text-input");
 const deleteButtonElement = document.getElementById("delete-button");
+const addForm = document.querySelector(".add-form");
+const loadingIndicator = document.querySelector(".loading-indicator");
 
-
-
-const comments = [
-  {
-    name: "Глеб Фокин",
-    date: "12.02.22 12:18",
-    commentText: "Это будет первый комментарий на этой странице",
-    likeCounter: "3",
-    isLiked: false,
-    //isEdit: false,
-  },
-  {
-    name: "Варвара Н.",
-    date: "13.02.22 19:22",
-    commentText: "Мне нравится как оформлена эта страница! ❤",
-    likeCounter: "75",
-    isLiked: true,
-    //isEdit: false,
+const commentDate = (currentDate) => {
+  const plus0 = (el) => {
+    if (el < 10) {
+      return el = '0' + el;
+    } else {
+      return el;
+    }
   }
-];
+
+  let date = plus0(currentDate.getDate());
+  let month = plus0(currentDate.getMonth() + 1);
+  let year = plus0(currentDate.getFullYear());
+  let hour = plus0(currentDate.getHours());
+  let minute = plus0(currentDate.getMinutes());
+
+  return `${date}.${month}.${year} ${hour}:${minute}`;
+}
+let currentDate = new Date();
+
+fetch("https://wedev-api.sky.pro/api/v1/:almash/comments", {
+  method: "GET"
+}).then((response) => {
+  response.json().then((responseData) => {
+    const appComments = responseData.comments.map((comment) => {
+      return {
+        name: comment.author.name,
+        date: commentDate(new Date(comment.date)),
+        commentText: comment.text,
+        likeCounter: comment.likes,
+        isLiked: false,
+      };
+
+    });
+    comments = appComments;
+    renderComments();
+  });
+});
+
+let comments = [];
 
 const renderComments = () => {
   const commentsHtml = comments.map((comment, index) => {
@@ -43,21 +64,14 @@ const renderComments = () => {
         <button data-index="${index}" class="${comment.isLiked ? 'like-button -active-like' : 'like-button'}"></button>
       </div>
     </div>
-    <!-- <div class="add-form-row">
-      <button data-index="${index}" class="edit-button" >Редактировать</button>
-    </div> -->
   </li>`
   }).join('')
-    .replace("<p class='quote'>", "")
-    .replace("</p>", "");
 
   listElement.innerHTML = commentsHtml;
 
   initMyLikesListeners();
   reptyToCommentElements();
   handleChanges();
-  //deleteButtonElement();
-  //editCommentElements();
 };
 
 const reptyToCommentElements = () => {
@@ -102,71 +116,73 @@ const handleChanges = () => {
     }
     buttonElement.removeAttribute('disabled');
   };
-  
+
   for (const input of inputs) {
     input.onkeydown = input.onkeyup = input.onkeypress = input.change = handleChange;
   };
 };
 
-// const editCommentElements = () => {
-
-//   for (const editComment of document.querySelectorAll(".edit-button")) {
-//     editComment.addEventListener("click", (e) => {
-//       e.stopPropagation();
-//       const index = comments[editComment.dataset.index];
-//       console.log(index);
-//       renderComments()
-//     })
-//   }
-// }
-
 renderComments();
 
-buttonElement.addEventListener('click', (timeOfComment) => {
+buttonElement.addEventListener('click', () => {
 
-  const plus0 = (el) => {
-    if (el < 10) {
-      return el = '0' + el;
-    } else {
-      return el;
-    }
-  }
-
-  let currentDate = new Date();
-  let date = plus0(currentDate.getDate());
-  let month = plus0(currentDate.getMonth() + 1);
-  let year = plus0(currentDate.getFullYear());
-  let hour = plus0(currentDate.getHours());
-  let minute = plus0(currentDate.getMinutes());
- 
   nameInputElement.classList.remove("error");
   if (nameInputElement.value === "") {
     nameInputElement.classList.add("error");
-    //buttonElement.disabled = true;
     return;
   }
   textInputElement.classList.remove("error");
   if (textInputElement.value === "") {
     textInputElement.classList.add("error");
-    //buttonElement.disabled = true;
     return;
   }
 
-  comments.push({
-    name: nameInputElement.value
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
-      .replaceAll("QUOTE_END", "</p>"),
-    date: `${date}.${month}.${year} ${hour}:${minute}`,
-    commentText: textInputElement.value
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
-      .replaceAll("QUOTE_END", "</p>"),
-    likeCounter: 0,
-    isLiked: false,
+  addForm.style.display = "none";
+  loadingIndicator.style.visibility = "visible";
+
+
+  fetch("https://wedev-api.sky.pro/api/v1/:almash/comments", {
+    method: "POST",
+    body: JSON.stringify({
+      text: textInputElement.value
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
+        .replaceAll("QUOTE_END", "</p>"),
+      name: nameInputElement.value
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
+        .replaceAll("QUOTE_END", "</p>"),
+    })
+  }).then((response) => {
+    response.json().then((responseData) => {
+      return fetch("https://wedev-api.sky.pro/api/v1/:almash/comments", {
+        method: "GET"
+      }).then((response) => {
+        response.json().then((responseData) => {
+          const appComments = responseData.comments.map((comment) => {
+            return {
+              name: comment.author.name,
+              date: commentDate(new Date(comment.date)),
+              commentText: comment.text,
+              likeCounter: comment.likes,
+              isLiked: false,
+            };
+
+          });
+          comments = appComments;
+          renderComments();
+        });
+      });
+
+    });
+  }).then(() => {
+    addForm.style.display = "flex";
+    loadingIndicator.style.display = "none";
+    renderComments();
   })
+
 
   renderComments();
 
@@ -179,3 +195,4 @@ textInputElement.addEventListener('keyup', function (e) {
     buttonElement.click();
   }
 });
+
