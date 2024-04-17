@@ -25,8 +25,6 @@ const commentDate = (currentDate) => {
 }
 let currentDate = new Date();
 
-
-
 fetch("https://wedev-api.sky.pro/api/v1/:almash/comments", {
   method: "GET"
 }).then((response) => {
@@ -68,8 +66,6 @@ const renderComments = () => {
     </div>
   </li>`
   }).join('')
-    .replace("<p class='quote'>", "")
-    .replace("</p>", "");
 
   listElement.innerHTML = commentsHtml;
 
@@ -141,22 +137,6 @@ buttonElement.addEventListener('click', () => {
     return;
   }
 
-  comments.push({
-    name: nameInputElement.value
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
-      .replaceAll("QUOTE_END", "</p>"),
-    date: commentDate(currentDate),
-    commentText: textInputElement.value
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
-      .replaceAll("QUOTE_END", "</p>"),
-    likeCounter: 0,
-    isLiked: false,
-  })
-
   addForm.style.display = "none";
   loadingIndicator.style.visibility = "visible";
 
@@ -164,13 +144,37 @@ buttonElement.addEventListener('click', () => {
   fetch("https://wedev-api.sky.pro/api/v1/:almash/comments", {
     method: "POST",
     body: JSON.stringify({
-      text: textInputElement.value,
-      name: nameInputElement.value,
+      text: textInputElement.value
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
+        .replaceAll("QUOTE_END", "</p>"),
+      name: nameInputElement.value
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
+        .replaceAll("QUOTE_END", "</p>"),
     })
   }).then((response) => {
     response.json().then((responseData) => {
-      comments = responseData.comments;
-      renderComments();
+      return fetch("https://wedev-api.sky.pro/api/v1/:almash/comments", {
+        method: "GET"
+      }).then((response) => {
+        response.json().then((responseData) => {
+          const appComments = responseData.comments.map((comment) => {
+            return {
+              name: comment.author.name,
+              date: commentDate(new Date(comment.date)),
+              commentText: comment.text,
+              likeCounter: comment.likes,
+              isLiked: false,
+            };
+
+          });
+          comments = appComments;
+          renderComments();
+        });
+      });
 
     });
   }).then(() => {
