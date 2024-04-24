@@ -139,15 +139,8 @@ renderComments();
 buttonElement.addEventListener('click', () => {
 
   nameInputElement.classList.remove("error");
-  if (nameInputElement.value === "" || nameInputElement.value.length < 3) {
-    nameInputElement.classList.add("error");
-    return;
-  }
   textInputElement.classList.remove("error");
-  if (textInputElement.value === "" || textInputElement.value.length < 3) {
-    textInputElement.classList.add("error");
-    return;
-  }
+
 
   addForm.style.display = "none";
   commentLoadingIndicator.style.visibility = "visible";
@@ -166,22 +159,26 @@ buttonElement.addEventListener('click', () => {
         .replaceAll('>', '&gt;')
         .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
         .replaceAll("QUOTE_END", "</p>"),
-      // forceError: true,
+      forceError: true,
     })
   })
     .then((response) => {
-      // if (response.status === 400) {
-      //   alert("Имя и комментарий должны быть не короче 3х символов");
-      //   throw new Error("Неверный запрос")
-      // }
-      // if (response.status === 500) {
-
-      //   throw new Error("Сервер упал")
-      // }
-      // if (response.status === 201) {
-      //   return response.json();
-      // }
-      return response.json();
+      if (response.status === 400) {
+        if (nameInputElement.value === "" || nameInputElement.value.length < 3) {
+          nameInputElement.classList.add("error");
+          throw new Error("Неверный запрос")
+        }
+        if (textInputElement.value === "" || textInputElement.value.length < 3) {
+          textInputElement.classList.add("error");
+          throw new Error("Неверный запрос")
+        }
+      }
+      if (response.status === 500) {
+        throw new Error("Сервер упал")
+      }
+      if (response.status === 201) {
+        return response.json();
+      }
     })
     .then(() => {
       return fetchAndRenderComments();
@@ -193,13 +190,21 @@ buttonElement.addEventListener('click', () => {
       textInputElement.value = "";
       renderComments();
     })
-  // .catch((error) => {
+    .catch((error) => {
+      console.warn(error);
+      if (error.message === "Неверный запрос") {
+        alert("Имя и комментарий должны быть не короче 3х символов");
+      }
+      if (error.message === "Сервер упал") {
+        alert('Сломался сервер , попробуйте позже');
+      }
+      if (window.navigator.onLine === false) {
+        alert("Кажется, у вас сломался интернет, попробуйте позже");
+      }
 
-  //   addForm.style.display = "flex";
-  //   // commentLoadingIndicator.style.display = "none";
-  //   alert("Кажется что-то пошло не так, попробуй позже");
-  //   console.warn(error);
-  // })
+      addForm.style.display = "flex";
+      commentLoadingIndicator.style.display = "none";
+    })
 
 
   renderComments();
