@@ -4,7 +4,9 @@ const nameInputElement = document.getElementById("name-input");
 const textInputElement = document.getElementById("text-input");
 const deleteButtonElement = document.getElementById("delete-button");
 const addForm = document.querySelector(".add-form");
-const loadingIndicator = document.querySelector(".loading-indicator");
+const commentLoadingIndicator = document.querySelector(".comment-loading-indicator");
+const commentsLoadingIndicator = document.querySelector(".comments-loading-indicator");
+const fetchUrl = "https://wedev-api.sky.pro/api/v1/:almash/comments";
 
 const commentDate = (currentDate) => {
   const plus0 = (el) => {
@@ -25,24 +27,31 @@ const commentDate = (currentDate) => {
 }
 let currentDate = new Date();
 
-fetch("https://wedev-api.sky.pro/api/v1/:almash/comments", {
-  method: "GET"
-}).then((response) => {
-  response.json().then((responseData) => {
-    const appComments = responseData.comments.map((comment) => {
-      return {
-        name: comment.author.name,
-        date: commentDate(new Date(comment.date)),
-        commentText: comment.text,
-        likeCounter: comment.likes,
-        isLiked: false,
-      };
+const fetchAndRenderComments = () => {
+  fetch(fetchUrl, {
+    method: "GET"
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((responseData) => {
+      const appComments = responseData.comments.map((comment) => {
+        return {
+          name: comment.author.name,
+          date: commentDate(new Date(comment.date)),
+          commentText: comment.text,
+          likeCounter: comment.likes,
+          isLiked: false,
+        };
 
+      })
+      comments = appComments;
+      renderComments();
+    })
+    .then(() => {
+      commentsLoadingIndicator.style.display = "none";
     });
-    comments = appComments;
-    renderComments();
-  });
-});
+};
 
 let comments = [];
 
@@ -122,26 +131,29 @@ const handleChanges = () => {
   };
 };
 
+commentsLoadingIndicator.style.visibility = "visible";
+
+fetchAndRenderComments();
 renderComments();
 
 buttonElement.addEventListener('click', () => {
 
   nameInputElement.classList.remove("error");
-  if (nameInputElement.value === "") {
+  if (nameInputElement.value === "" || nameInputElement.value.length < 3) {
     nameInputElement.classList.add("error");
     return;
   }
   textInputElement.classList.remove("error");
-  if (textInputElement.value === "") {
+  if (textInputElement.value === "" || textInputElement.value.length < 3) {
     textInputElement.classList.add("error");
     return;
   }
 
   addForm.style.display = "none";
-  loadingIndicator.style.visibility = "visible";
+  commentLoadingIndicator.style.visibility = "visible";
 
 
-  fetch("https://wedev-api.sky.pro/api/v1/:almash/comments", {
+  fetch(fetchUrl, {
     method: "POST",
     body: JSON.stringify({
       text: textInputElement.value
@@ -154,40 +166,45 @@ buttonElement.addEventListener('click', () => {
         .replaceAll('>', '&gt;')
         .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
         .replaceAll("QUOTE_END", "</p>"),
+      // forceError: true,
     })
-  }).then((response) => {
-    response.json().then((responseData) => {
-      return fetch("https://wedev-api.sky.pro/api/v1/:almash/comments", {
-        method: "GET"
-      }).then((response) => {
-        response.json().then((responseData) => {
-          const appComments = responseData.comments.map((comment) => {
-            return {
-              name: comment.author.name,
-              date: commentDate(new Date(comment.date)),
-              commentText: comment.text,
-              likeCounter: comment.likes,
-              isLiked: false,
-            };
-
-          });
-          comments = appComments;
-          renderComments();
-        });
-      });
-
-    });
-  }).then(() => {
-    addForm.style.display = "flex";
-    loadingIndicator.style.display = "none";
-    renderComments();
   })
+    .then((response) => {
+      // if (response.status === 400) {
+      //   alert("Имя и комментарий должны быть не короче 3х символов");
+      //   throw new Error("Неверный запрос")
+      // }
+      // if (response.status === 500) {
+
+      //   throw new Error("Сервер упал")
+      // }
+      // if (response.status === 201) {
+      //   return response.json();
+      // }
+      return response.json();
+    })
+    .then(() => {
+      return fetchAndRenderComments();
+    })
+    .then(() => {
+      addForm.style.display = "flex";
+      commentLoadingIndicator.style.display = "none";
+      nameInputElement.value = "";
+      textInputElement.value = "";
+      renderComments();
+    })
+  // .catch((error) => {
+
+  //   addForm.style.display = "flex";
+  //   // commentLoadingIndicator.style.display = "none";
+  //   alert("Кажется что-то пошло не так, попробуй позже");
+  //   console.warn(error);
+  // })
 
 
   renderComments();
 
-  nameInputElement.value = "";
-  textInputElement.value = "";
+
 });
 
 textInputElement.addEventListener('keyup', function (e) {
