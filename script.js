@@ -140,76 +140,75 @@ buttonElement.addEventListener('click', () => {
 
   nameInputElement.classList.remove("error");
   textInputElement.classList.remove("error");
-
+  
 
   addForm.style.display = "none";
   commentLoadingIndicator.style.visibility = "visible";
 
-
-  fetch(fetchUrl, {
-    method: "POST",
-    body: JSON.stringify({
-      text: textInputElement.value
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
-        .replaceAll("QUOTE_END", "</p>"),
-      name: nameInputElement.value
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
-        .replaceAll("QUOTE_END", "</p>"),
-      forceError: true,
+  const handlePostClick = () => {
+    fetch(fetchUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        text: textInputElement.value
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
+          .replaceAll("QUOTE_END", "</p>"),
+        name: nameInputElement.value
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
+          .replaceAll("QUOTE_END", "</p>"),
+        forceError: true,
+      })
     })
-  })
-    .then((response) => {
-      if (response.status === 400) {
-        if (nameInputElement.value === "" || nameInputElement.value.length < 3) {
-          nameInputElement.classList.add("error");
+      .then((response) => {
+        if (response.status === 400) {
+          if (nameInputElement.value.length < 3) {
+            nameInputElement.classList.add("error");
+          }
+          if (textInputElement.value.length < 3) {
+            textInputElement.classList.add("error");
+          }
           throw new Error("Неверный запрос")
         }
-        if (textInputElement.value === "" || textInputElement.value.length < 3) {
-          textInputElement.classList.add("error");
-          throw new Error("Неверный запрос")
+        if (response.status === 500) {
+          throw new Error("Сервер упал")
         }
-      }
-      if (response.status === 500) {
-        throw new Error("Сервер упал")
-      }
-      if (response.status === 201) {
-        return response.json();
-      }
-    })
-    .then(() => {
-      return fetchAndRenderComments();
-    })
-    .then(() => {
-      addForm.style.display = "flex";
-      commentLoadingIndicator.style.display = "none";
-      nameInputElement.value = "";
-      textInputElement.value = "";
-      renderComments();
-    })
-    .catch((error) => {
-      console.warn(error);
-      if (error.message === "Неверный запрос") {
-        alert("Имя и комментарий должны быть не короче 3х символов");
-      }
-      if (error.message === "Сервер упал") {
-        alert('Сломался сервер , попробуйте позже');
-      }
-      if (window.navigator.onLine === false) {
-        alert("Кажется, у вас сломался интернет, попробуйте позже");
-      }
+        if (response.status === 201) {
+          return response.json();
+        }
+      })
+      .then(() => {
+        return fetchAndRenderComments();
+      })
+      .then(() => {
+        addForm.style.display = "flex";
+        commentLoadingIndicator.style.display = "none";
+        nameInputElement.value = "";
+        textInputElement.value = "";
+        renderComments();
+      })
+      .catch((error) => {
+        console.warn(error);
+        if (error.message === "Неверный запрос") {
+          alert("Имя и комментарий должны быть не короче 3х символов");
+        }
+        if (window.navigator.onLine === false) {
+          alert("Кажется, у вас сломался интернет, попробуйте позже");
+        }
+        if (error.message === "Сервер упал") {
+          handlePostClick();
+        }
+  
+        addForm.style.display = "flex";
+        commentLoadingIndicator.style.display = "none";
+      })
+  
+    renderComments();
+  };
 
-      addForm.style.display = "flex";
-      commentLoadingIndicator.style.display = "none";
-    })
-
-
-  renderComments();
-
-
+  handlePostClick();
 });
 
 textInputElement.addEventListener('keyup', function (e) {
