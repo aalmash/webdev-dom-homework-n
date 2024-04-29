@@ -26,7 +26,6 @@ const commentDate = (currentDate) => {
 
     return `${date}.${month}.${year} ${hour}:${minute}`;
 }
-let currentDate = new Date();
 
 const fetchAndRenderComments = () => {
     getComments().then((responseData) => {
