@@ -28,7 +28,10 @@ const commentDate = (currentDate) => {
 }
 
 const fetchAndRenderComments = () => {
-    getComments().then((responseData) => {
+    getComments().then((response) => {
+      return response.json();
+    })
+    .then((responseData) => {
         const appComments = responseData.comments.map((comment) => {
             return {
                 name: comment.author.name,
@@ -121,6 +124,9 @@ buttonElement.addEventListener('click', () => {
                 }
                 throw new Error("Неверный запрос")
             }
+            if(response.status === 401) {
+                throw new Error("Нет авторизации")
+              }
             if (response.status === 500) {
                 throw new Error("Сервер упал")
             }
@@ -148,6 +154,9 @@ buttonElement.addEventListener('click', () => {
                 }
                 if (error.message === "Сервер упал") {
                     handlePostClick();
+                }
+                if (error.message = "Нет авторизации") {
+                    addForm.textContent = "Чтобы добавить комментарий, авторизуйтесь";
                 }
 
                 addForm.style.display = "flex";

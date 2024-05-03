@@ -1,6 +1,5 @@
 const listElement = document.getElementById("list");
 
-
 export const renderComments = ({comments, initMyLikesListeners, reptyToCommentElements, handleChanges}) => {
     const commentsHtml = comments.map((comment, index) => {
         return `<li class="comment" data-reply ="${comment.name}, ${comment.commentText}">
