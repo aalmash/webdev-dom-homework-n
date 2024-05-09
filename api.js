@@ -2,15 +2,28 @@ import { sanitizeHtml } from "./main.js";
 
 const fetchUrl = "https://wedev-api.sky.pro/api/v2/:almash/comments";
 const userUrl = "https://wedev-api.sky.pro/api/user/login";
+let commentsLoadingIndicator = document.querySelector(".loading-text")
 
-let token;
+export let token;
+
+export const setToken = (newToken) => {
+  token = newToken;
+};
 
 export function getComments() {
+  commentsLoadingIndicator.textContent = "Пожалуйта подождите, загружаю комментарии...";
   return fetch(fetchUrl, {
     method: "GET",
     headers: {
-      Authorization: token,
+      Authorization: `Bearer ${token}`,
     }
+  })
+  .then((response) => {
+    return response.json();
+  })
+  .then((response) => {
+    commentsLoadingIndicator.textContent = "";
+    return response;
   })
 };
 
@@ -18,7 +31,7 @@ export function postComment({ text, name }) {
   return fetch(fetchUrl, {
     method: "POST",
     headers: {
-      Authorization: token,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
       text: sanitizeHtml(text),
@@ -41,15 +54,15 @@ export function login({ login, password }) {
   });
 }
 
-// const buttonElement = document.getElementById("login-button");
-// const loginInputElement = document.querySelector(".login-login");
-// const passwordInputElement = document.querySelector(".login-password");
-
-// buttonElement.addEventListener("click", () => {
-//     login({
-//         login: loginInputElement.value,
-//         password: passwordInputElement.value,
-//     }).then((responseData) => {
-//         console.log(responseData);
-//     });
-// });
+export function registration({ login, name, password }) {
+  return fetch(userUrl, {
+    method: "POST",
+    body: JSON.stringify({
+      login,
+      name,
+      password,
+    })
+  }).then((response) => {
+    return response.json();
+  });
+}

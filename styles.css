@@ -183,6 +183,10 @@ body {
     border-radius: 20px;
   }
 
+  .render-link{
+    color: #ffffff;
+  }
+
   .link {
     margin-top: 20px;
     font-size: 20px;

@@ -8,43 +8,13 @@
 </head>
 
 <body>
-  <div class="container">
-    <p class="loading-indicator comments-loading-indicator">Пожалуйта подождите, загружаю комментарии...</p>
-    <ul id="list" class="comments">
-      <!-- Список рендерится из JS -->
-    </ul>
-    <div class="add-form-row">
-      <button id="delete-button" class="add-form-button">Удалить последний комментарий</button>
-    </div>
-    <div class="add-form">
-      <input id="name-input" type="text" class="add-form-name add-form-input" placeholder="Введите ваше имя" />
-      <textarea id="text-input" type="textarea" class="add-form-text add-form-input"
-        placeholder="Введите ваш коментарий" rows="4"></textarea>
-      <div class="add-form-row">
-        <button id="add-button" class="add-form-button" disabled>Написать</button>
-      </div>
-    </div>
-    <p class="loading-indicator comment-loading-indicator">Коментарий добавляется...</p>
-  </div>
 
   <div class="container">
-    <div class="login-form add-form">
-      <h2>Форма входа</h2>
-      <input type="text" class="login-login add-form-text" placeholder="Введите логин">
-      <input type="text" class="login-password add-form-text" placeholder="Введите пароль">
-      <button id="login-button" class="login-button add-form-button">Войти</button>
-      <a href="#" class="link login-link">Зарегистрироваться</a>
-    </div>
-
-    <div class="registration-form add-form">
-      <h2>Форма регистрации</h2>
-      <input class="registration-name add-form-text" placeholder="Введите имя">
-      <input type="text" class="registration-login add-form-text" placeholder="Введите логин">
-      <input type="text" class="registration-password add-form-text" placeholder="Введите пароль">
-      <button class="registration-button add-form-button">Зарегистрироваться</button>
-      <a href="#" class="link registration-link">Войти</a>
-    </div>
+    <p class="loading-text"></p>
+    <div id="app"></div>
+    <p class="autorization-text">Чтобы добавить комментарий, <a href="./renderLogin.js" class="render-link">авторизуйтесь</a></p>
   </div>
+
   <script type="module" src="./main.js"></script>
 </body>
 
