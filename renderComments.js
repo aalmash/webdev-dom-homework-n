@@ -1,5 +1,6 @@
-import { postComment } from "./api.js";
+import { name, postComment, token } from "./api.js";
 import { fetchAndRenderComments } from "./main.js"
+import { renderLogin } from "./renderLogin.js";
 
 // const listElement = document.getElementById("list");
 
@@ -26,7 +27,10 @@ export const renderComments = ({ comments, initMyLikesListeners, reptyToCommentE
   </li>`
   }).join('')
 
-  const appHtml = `
+  let appHtml = ``;
+
+  if (token) {
+    appHtml = `
     <div class="container">
     <ul id="list" class="comments">
       ${commentsHtml}
@@ -35,7 +39,7 @@ export const renderComments = ({ comments, initMyLikesListeners, reptyToCommentE
       <button id="delete-button" class="add-form-button">Удалить последний комментарий</button>
     </div>
     <div class="add-form" id="add-form">
-      <input id="name-input" type="text" class="add-form-name add-form-input" placeholder="Введите ваше имя" />
+      <input id="name-input" type="text" class="add-form-name add-form-input" value="${name}" disabled readonly/>
       <textarea id="text-input" type="textarea" class="add-form-text add-form-input"
         placeholder="Введите ваш коментарий" rows="4"></textarea>
       <div class="add-form-row">
@@ -44,101 +48,111 @@ export const renderComments = ({ comments, initMyLikesListeners, reptyToCommentE
     </div>
     <p class="loading-indicator comment-loading-indicator">Коментарий добавляется...</p>
   </div>`;
+    appElement.innerHTML = appHtml;
 
-  appElement.innerHTML = appHtml;
-  const buttonElement = document.getElementById("add-button");
+    const buttonElement = document.getElementById("add-button");
+    const nameInputElement = document.getElementById("name-input");
+    const textInputElement = document.getElementById("text-input");
+    const deleteButtonElement = document.getElementById("delete-button");
+    const addForm = document.getElementById("add-form");
+    const commentLoadingIndicator = document.querySelector(".comment-loading-indicator");
 
+    initMyLikesListeners();
+    reptyToCommentElements({ textInputElement });
+    handleChanges({ buttonElement });
 
-  initMyLikesListeners();
-  reptyToCommentElements();
-  handleChanges({ buttonElement });
-
-  const nameInputElement = document.getElementById("name-input");
-  const textInputElement = document.getElementById("text-input");
-  const deleteButtonElement = document.getElementById("delete-button");
-  const addForm = document.getElementById("add-form");
-  const commentLoadingIndicator = document.querySelector(".comment-loading-indicator");
-
-
-  
-
-  deleteButtonElement.addEventListener("click", () => {
-    comments.pop();
-    renderComments({ comments, initMyLikesListeners, reptyToCommentElements, handleChanges });
-  });
-
-  buttonElement.addEventListener('click', () => {
-
-    nameInputElement.classList.remove("error");
-    textInputElement.classList.remove("error");
-
-
-    addForm.style.display = "none";
-    commentLoadingIndicator.style.visibility = "visible";
-
-    const handlePostClick = () => {
-      postComment({
-        text: textInputElement.value,
-        name: nameInputElement.value
-      }).then((response) => {
-        if (response.status === 400) {
-          if (nameInputElement.value.length < 3) {
-            nameInputElement.classList.add("error");
-          }
-          if (textInputElement.value.length < 3) {
-            textInputElement.classList.add("error");
-          }
-          throw new Error("Неверный запрос")
-        }
-        if (response.status === 401) {
-          throw new Error("Нет авторизации")
-        }
-        if (response.status === 500) {
-          throw new Error("Сервер упал")
-        }
-        if (response.status === 201) {
-          return response.json();
-        }
-      })
-        .then(() => {
-          return fetchAndRenderComments();
-        })
-        .then(() => {
-          addForm.style.display = "flex";
-          commentLoadingIndicator.style.display = "none";
-          nameInputElement.value = "";
-          textInputElement.value = "";
-          renderComments({ comments, initMyLikesListeners, reptyToCommentElements, handleChanges });
-        })
-        .catch((error) => {
-          console.warn(error);
-          if (error.message === "Неверный запрос") {
-            alert("Имя и комментарий должны быть не короче 3х символов");
-          }
-          if (window.navigator.onLine === false) {
-            alert("Кажется, у вас сломался интернет, попробуйте позже");
-          }
-          if (error.message === "Сервер упал") {
-            handlePostClick();
-          }
-          if (error.message = "Нет авторизации") {
-            addForm.textContent = "Чтобы добавить комментарий, авторизуйтесь";
-          }
-
-          addForm.style.display = "flex";
-          commentLoadingIndicator.style.display = "none";
-        })
-
+    deleteButtonElement.addEventListener("click", () => {
+      comments.pop();
       renderComments({ comments, initMyLikesListeners, reptyToCommentElements, handleChanges });
-    };
+    });
 
-    handlePostClick();
-  });
+    buttonElement.addEventListener('click', () => {
 
-  textInputElement.addEventListener('keyup', function (e) {
-    if (e.key === 'Enter') {
-      buttonElement.click();
-    }
-  });
+      nameInputElement.classList.remove("error");
+      textInputElement.classList.remove("error");
 
+
+      addForm.style.display = "none";
+      commentLoadingIndicator.style.visibility = "visible";
+
+      const handlePostClick = () => {
+        postComment({
+          text: textInputElement.value,
+          name: nameInputElement.value
+        }).then((response) => {
+          if (response.status === 400) {
+            if (nameInputElement.value.length < 3) {
+              nameInputElement.classList.add("error");
+            }
+            if (textInputElement.value.length < 3) {
+              textInputElement.classList.add("error");
+            }
+            throw new Error("Неверный запрос")
+          }
+          if (response.status === 401) {
+            throw new Error("Нет авторизации")
+          }
+          if (response.status === 500) {
+            throw new Error("Сервер упал")
+          }
+          if (response.status === 201) {
+            return response.json();
+          }
+        })
+          .then(() => {
+            return fetchAndRenderComments();
+          })
+          .then(() => {
+            addForm.style.display = "flex";
+            commentLoadingIndicator.style.display = "none";
+            nameInputElement.value = "";
+            textInputElement.value = "";
+            renderComments({ comments, initMyLikesListeners, reptyToCommentElements, handleChanges });
+          })
+          .catch((error) => {
+            console.warn(error);
+            if (error.message === "Неверный запрос") {
+              alert("Имя и комментарий должны быть не короче 3х символов");
+            }
+            if (window.navigator.onLine === false) {
+              alert("Кажется, у вас сломался интернет, попробуйте позже");
+            }
+            if (error.message === "Сервер упал") {
+              handlePostClick();
+            }
+            if (error.message = "Нет авторизации") {
+              addForm.textContent = "Чтобы добавить комментарий, авторизуйтесь";
+            }
+
+            addForm.style.display = "flex";
+            commentLoadingIndicator.style.display = "none";
+          })
+
+        renderComments({ comments, initMyLikesListeners, reptyToCommentElements, handleChanges });
+      };
+
+      handlePostClick();
+    });
+
+    textInputElement.addEventListener('keyup', function (e) {
+      if (e.key === 'Enter') {
+        buttonElement.click();
+      }
+    });
+
+  } else {
+    appHtml = `
+    <div class="container">
+    <ul id="list" class="comments">
+      ${commentsHtml}
+    </ul>
+    <p class="autorization-text">Чтобы добавить комментарий, <a href="#" class="render-link">авторизуйтесь</a></p>`;
+
+    appElement.innerHTML = appHtml;
+    const goToLogin = document.querySelector(".autorization-text");
+
+    goToLogin.addEventListener("click", () => {
+      renderLogin({ fetchAndRenderComments });
+    })
+  };
 };

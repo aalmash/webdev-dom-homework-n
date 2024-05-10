@@ -1,10 +1,8 @@
-import { login, setToken } from "./api.js";
+import { login, setName, setToken } from "./api.js";
 import { renderRegistration } from "./renderRegistration.js";
 
-export const authorizationText = document.querySelector(".autorization-text");
 
 export const renderLogin = ({ fetchAndRenderComments }) => {
-    authorizationText.textContent = "";
     const appElement = document.getElementById("app");
     const loginHtml = `
     <div class="login-form add-form">
@@ -26,11 +24,30 @@ export const renderLogin = ({ fetchAndRenderComments }) => {
         login({
             login: loginInputElement.value,
             password: passwordInputElement.value,
-        }).then((responseData) => {
-            setToken(responseData.user.token);
-        }).then(() => {
-            fetchAndRenderComments();
         })
+            .then((response) => {
+                if (response.status === 201) {
+                    return response.json();
+                }
+                if (response.status === 400) {
+                    throw new Error("Неверный запрос")
+                }
+            })
+            .then((responseData) => {
+                setName(responseData.user.name);
+                setToken(responseData.user.token);
+            }).then(() => {
+                fetchAndRenderComments();
+            })
+            .catch((error) => {
+                console.warn(error);
+                if (error.message === "Неверный запрос") {
+                    alert("Неверный логин или пароль");
+                }
+                if (window.navigator.onLine === false) {
+                    alert("Кажется, у вас сломался интернет, попробуйте позже");
+                }
+            });
     });
 
     goToLogin.addEventListener("click", () => {

@@ -1,13 +1,18 @@
 import { sanitizeHtml } from "./main.js";
 
 const fetchUrl = "https://wedev-api.sky.pro/api/v2/:almash/comments";
-const userUrl = "https://wedev-api.sky.pro/api/user/login";
+const loginUrl = "https://wedev-api.sky.pro/api/user/login";
+const registrationUrl = "https://wedev-api.sky.pro/api/user";
 let commentsLoadingIndicator = document.querySelector(".loading-text")
 
 export let token;
-
 export const setToken = (newToken) => {
   token = newToken;
+};
+
+export let name;
+export const setName = (newName) => {
+  name = newName;
 };
 
 export function getComments() {
@@ -43,26 +48,22 @@ export function postComment({ text, name }) {
 }
 
 export function login({ login, password }) {
-  return fetch(userUrl, {
+  return fetch(loginUrl, {
     method: "POST",
     body: JSON.stringify({
       login,
       password,
     })
-  }).then((response) => {
-    return response.json();
-  });
+  })
 }
 
 export function registration({ login, name, password }) {
-  return fetch(userUrl, {
+  return fetch(registrationUrl, {
     method: "POST",
     body: JSON.stringify({
       login,
       name,
       password,
     })
-  }).then((response) => {
-    return response.json();
-  });
+  })
 }

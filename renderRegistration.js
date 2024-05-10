@@ -1,9 +1,8 @@
-import { registration, setToken } from "./api.js";
+import { registration, setName, setToken } from "./api.js";
 import { fetchAndRenderComments } from "./main.js";
-import { authorizationText, renderLogin } from "./renderLogin.js";
+import { renderLogin } from "./renderLogin.js";
 
 export const renderRegistration = () => {
-    authorizationText.textContent = "";
     const appElement = document.getElementById("app");
     const registrationHtml = `
     <div class="registration-form add-form">
@@ -28,11 +27,29 @@ export const renderRegistration = () => {
             login: regLoginInputElement.value,
             name: regNameInputElement.value,
             password: regPasswordInputElement.value,
-        }).then((responseData) => {
-            setToken(responseData.user.token);
-        }).then(() => {
-            fetchAndRenderComments();
         })
+            .then((response) => {
+                if (response.status === 201) {
+                    return response.json();
+                }
+                if (response.status === 400) {
+                    throw new Error("Неверный запрос")
+                }
+            })
+            .then((responseData) => {
+                setName(responseData.user.name);
+                setToken(responseData.user.token);
+                fetchAndRenderComments();
+            })
+            .catch((error) => {
+                console.warn(error);
+                if (error.message === "Неверный запрос") {
+                    alert("Пользователь с таким логином уже сущетсвует или логин и пароль должны быть не короче 3х символов");
+                }
+                if (window.navigator.onLine === false) {
+                    alert("Кажется, у вас сломался интернет, попробуйте позже");
+                }
+            });
     })
 
     goToLogin.addEventListener("click", () => {

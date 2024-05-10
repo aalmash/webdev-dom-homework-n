@@ -1,7 +1,5 @@
 import { getComments } from "./api.js";
 import { renderComments } from "./renderComments.js";
-import { renderLogin } from "./renderLogin.js";
-import { renderRegistration } from "./renderRegistration.js";
 
 const commentDate = (currentDate) => {
     const plus0 = (el) => {
@@ -40,8 +38,9 @@ export const fetchAndRenderComments = () => {
 };
 
 let comments = [];
+fetchAndRenderComments();
 
-const reptyToCommentElements = () => {
+const reptyToCommentElements = ({ textInputElement }) => {
     const reptyToCommentElement = document.querySelectorAll(".comment");
 
     for (const replyToComment of reptyToCommentElement) {
@@ -84,10 +83,6 @@ const handleChanges = ({ buttonElement }) => {
     };
 };
 
-fetchAndRenderComments();
-
-renderComments({ comments, initMyLikesListeners, reptyToCommentElements, handleChanges });
-
 export const sanitizeHtml = (htmlString) => {
     return htmlString
         .replaceAll('<', '&lt;')
@@ -95,6 +90,3 @@ export const sanitizeHtml = (htmlString) => {
         .replaceAll("QUOTE_BEGIN", "<p class='quote'>")
         .replaceAll("QUOTE_END", "</p>")
 };
-
-// renderLogin({ fetchAndRenderComments });
-// renderRegistration();
