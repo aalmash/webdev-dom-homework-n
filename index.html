@@ -8,25 +8,13 @@
 </head>
 
 <body>
+
   <div class="container">
-    <p class="loading-indicator comments-loading-indicator">Пожалуйта подождите, загружаю комментарии...</p>
-    <ul id="list" class="comments">
-      <!-- Список рендерится из JS -->
-    </ul>
-    <div class="add-form-row">
-      <button id="delete-button" class="add-form-button">Удалить последний комментарий</button>
-    </div>
-    <div class="add-form">
-      <input id="name-input" type="text" class="add-form-name add-form-input" placeholder="Введите ваше имя" />
-      <textarea id="text-input" type="textarea" class="add-form-text add-form-input"
-        placeholder="Введите ваш коментарий" rows="4"></textarea>
-      <div class="add-form-row">
-        <button id="add-button" class="add-form-button" disabled>Написать</button>
-      </div>
-    </div>
-    <p class="loading-indicator comment-loading-indicator">Коментарий добавляется...</p>
+    <p class="loading-text"></p>
+    <div id="app"></div>
   </div>
+
+  <script type="module" src="./main.js"></script>
 </body>
 
-<script type="module" src="./main.js"></script>
 </html>
