@@ -1,5 +1,7 @@
 import { getComments } from "./api.js";
 import { renderComments } from "./renderComments.js";
+import { format } from "date-fns";
+// const createDate = format(new Date())
 
 const commentDate = (currentDate) => {
     const plus0 = (el) => {
@@ -25,7 +27,7 @@ export const fetchAndRenderComments = () => {
             const appComments = responseData.comments.map((comment) => {
                 return {
                     name: comment.author.name,
-                    date: commentDate(new Date(comment.date)),
+                    date: format(new Date(comment.date), "yyyy-MM-dd hh.mm.ss"),
                     commentText: comment.text,
                     likeCounter: comment.likes,
                     isLiked: false,
