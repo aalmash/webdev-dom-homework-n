@@ -8,7 +8,7 @@ export const renderLogin = ({ fetchAndRenderComments }) => {
     <div class="login-form add-form">
         <h2>Форма входа</h2>
         <input type="text" class="login-login add-form-text" placeholder="Введите логин">
-        <input type="text" class="login-password add-form-text" placeholder="Введите пароль">
+        <input type="password" class="login-password add-form-text" placeholder="Введите пароль">
         <button id="login-button" class="login-button add-form-button">Войти</button>
         <a href="#" class="link login-link">Зарегистрироваться</a>
     </div>`

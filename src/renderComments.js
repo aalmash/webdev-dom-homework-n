@@ -1,6 +1,7 @@
 import { name, postComment, token } from "./api.js";
 import { fetchAndRenderComments } from "./main.js"
 import { renderLogin } from "./renderLogin.js";
+// import { format } from "date-fns";
 
 // const listElement = document.getElementById("list");
 
