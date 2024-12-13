@@ -9,7 +9,7 @@ export const renderRegistration = () => {
       <h2>Форма регистрации</h2>
       <input class="registration-name add-form-text" placeholder="Введите имя">
       <input type="text" class="registration-login add-form-text" placeholder="Введите логин">
-      <input type="text" class="registration-password add-form-text" placeholder="Введите пароль">
+      <input type="password" class="registration-password add-form-text" placeholder="Введите пароль">
       <button class="registration-button add-form-button">Зарегистрироваться</button>
       <a href="#" class="link registration-link">Войти</a>
     </div>`;
